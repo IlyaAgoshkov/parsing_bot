@@ -4,7 +4,7 @@ from aiogram.types import Message, InlineKeyboardMarkup, CallbackQuery, InlineKe
 from bot.models.StreamerManager import save_data, StreamerManager
 from bot.states.SetPercentState import SetPercentState
 from bot.keyboards.keyboard import main
-from bot.utils.manager import get_table_value
+from bot.utils.manager import get_table_value, get_active_streamers
 
 router = Router()
 manager = StreamerManager()
@@ -73,11 +73,17 @@ async def list_streamers(message: Message, state: FSMContext):
         await message.answer("Нет отслеживаемых стримеров.")
 
 
-# @router.message(F.text == "Active streamers")
-# async def show_active_streamers(message: Message):
-#     streamers = get_active_streamers()
-#     if not streamers:
-#         await message.answer("Не удалось получить список активных стримеров.")
-#         return
-#     messages = "\n".join(streamers)
-#     await message.answer(f"Активные стримеры:\n{messages}")
+@router.message(F.text == "Active streamers")
+async def show_active_streamers(message: Message):
+    active_streamers = await get_active_streamers()
+
+    if not active_streamers:
+        await message.answer("Нет активных стримеров.")
+        return
+
+    response_message = "Активные стримеры:\n"
+    for streamer in active_streamers:
+        response_message += f"{streamer['channel_name']} - {streamer['percent_value']}%\n"
+
+    await message.answer(response_message)
+

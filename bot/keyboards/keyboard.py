@@ -7,7 +7,8 @@ main = ReplyKeyboardMarkup(keyboard=[
                                      KeyboardButton(text="Set max %")],
                                     [KeyboardButton(text="Add streamer"),
                                      KeyboardButton(text="Delete streamer")],
-                                    [KeyboardButton(text="My Streamers")]
+                                    [KeyboardButton(text="My Streamers"),
+                                     KeyboardButton(text="Active streamers")],
                                     ],
                            resize_keyboard=True,
                            input_field_placeholder='Выберите пункт меню...')

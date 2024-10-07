@@ -46,7 +46,6 @@ async def get_table_value(channel_name):
                     if len(cells) >= 6:
                         percent = cells[6].find('h6').text.strip()
                         percent_value = percent.replace('%', '').strip()
-                        # Сохраняем результат в кэш
                         cache[channel_name] = int(percent_value)
                         return int(percent_value)
     return None
@@ -84,3 +83,48 @@ async def monitor_streamers(user_id: int, bot: Bot, state: FSMContext):
             await bot.send_message(user_id, "Нет данных по стримерам.")
 
         await asyncio.sleep(5)
+
+async def get_active_streamers():
+    active_streamers = []
+
+    async with aiohttp.ClientSession() as session:
+        login_data = {
+            'login': USERNAME,
+            'password': PASSWORD,
+            'utype': 'manager',
+            'auth': '1'
+        }
+
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+
+        async with session.post(LOGIN_URL, data=login_data, headers=headers) as login_response:
+            if login_response.status != 200:
+                print("Не удалось авторизоваться на сайте")
+                return []
+
+        async with session.get('https://greedseed.world/p/?type=active') as response:
+            if response.status != 200:
+                print(f"Ошибка при запросе страницы: {response.status}")
+                return []
+
+            soup = BeautifulSoup(await response.text(), 'html.parser')
+            streamer_rows = soup.find_all('tr')
+
+            for row in streamer_rows:
+                anchor = row.find('a')
+                if anchor and anchor.text:
+                    channel_name = anchor.text.strip()
+                    cells = row.find_all('td')
+
+                    if len(cells) >= 7:
+                        percent_element = cells[6].find('h6')
+                        if percent_element:
+                            percent = percent_element.text.strip()
+                            percent_value = percent.replace('%', '').strip()
+                            active_streamers.append({
+                                'channel_name': channel_name,
+                                'percent_value': int(percent_value)
+                            })
+    return active_streamers
