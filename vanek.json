@@ -1,0 +1,16 @@
+{
+    "streamers": {
+        "tourva": {
+            "percent": 133
+        },
+        "viibiin": {
+            "percent": 90
+        },
+        "bigwill82": {
+            "percent": 94
+        }
+    },
+    "min_percent": 0,
+    "max_percent": 100,
+    "monitoring_active": false
+}
