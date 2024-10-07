@@ -69,9 +69,7 @@ async def monitor_streamers(user_id: int, bot: Bot, state: FSMContext):
 
         for channel_name, value in zip(streamers.keys(), values):
             if value is not None:
-                if manager.min_percent <= value <= manager.max_percent:
-                    messages.append(f"{channel_name}: {value}% (в пределах нормы)")
-                else:
+                if value < manager.min_percent or value > manager.max_percent:
                     messages.append(f"{channel_name}: {value}% (вне допустимых значений)")
                 manager.update_percent(channel_name, value)
             else:
@@ -79,10 +77,9 @@ async def monitor_streamers(user_id: int, bot: Bot, state: FSMContext):
 
         if messages:
             await bot.send_message(user_id, "\n".join(messages))
-        else:
-            await bot.send_message(user_id, "Нет данных по стримерам.")
 
-        await asyncio.sleep(5)
+        await asyncio.sleep(60)
+
 
 async def get_active_streamers():
     active_streamers = []
